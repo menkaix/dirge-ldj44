@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class Tombal : MonoBehaviour
 {
+	public int lives = 1;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -19,6 +21,16 @@ public class Tombal : MonoBehaviour
 
 	public void hit()
 	{
-		gameObject.SetActive(false);
+		lives--;
+
+		if (lives <= 0)
+		{
+			GameManager.instance.levelUp();
+
+			gameObject.SetActive(false);
+		}
+
+		
 	}
+
 }

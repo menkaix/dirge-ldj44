@@ -8,9 +8,10 @@ using UnityEngine.AI;
 [RequireComponent(typeof(Animator))]
 public class Ennemy : ActorBehaviour
 {
-	private int reincarnation = 0;
-	bool pActiveAgent;
+	private int undeath = 0;
+	private bool pActiveAgent;
 	private CapsuleCollider myCollider;
+	private int iniLives;
 
 	NavMeshAgent agent;
 
@@ -22,8 +23,8 @@ public class Ennemy : ActorBehaviour
     // Start is called before the first frame update
     void Awake()
     {
-		reincarnation = 0;
-
+		undeath = 0;
+		iniLives = lives;
 		agent = GetComponent<NavMeshAgent>();
 		anim = GetComponent<Animator>();
 		myCollider = GetComponent<CapsuleCollider>();
@@ -59,10 +60,6 @@ public class Ennemy : ActorBehaviour
 			die();
 		}
 			
-
-		
-
-		
 	}
 
 	public void hit()
@@ -106,6 +103,8 @@ public class Ennemy : ActorBehaviour
 		Targets targ = collision.collider.GetComponent<Targets>();
 		if (targ != null)
 		{
+
+			GameManager.instance.hurt();
 			die();
 		}
 
@@ -118,6 +117,15 @@ public class Ennemy : ActorBehaviour
 
 	public override void work()
 	{
+		if (lives <= 0)
+		{
+			undeath++;
+		}
+		if (undeath > 100)
+		{
+			gameObject.SetActive(false);
+		}
+
 		if (activeAgent && !pActiveAgent)
 		{
 			acivate();
@@ -132,10 +140,12 @@ public class Ennemy : ActorBehaviour
 
 	public override void onBorn()
 	{
+		lives = iniLives;
+		undeath = 0;
 		base.onBorn();
 		transform.localPosition = Vector3.zero;
 		StartCoroutine(activateAgent());
-		reincarnation++;
+		
 		//Debug.Log("Rein " + reincarnation);
 	}
 }

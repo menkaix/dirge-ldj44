@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -7,7 +8,9 @@ public enum GameState
 {
 	STARTING,
 	LOADING,
-	READY
+	READY,
+	PLAYING,
+	PAUSED
 }
 
 public class GameStateManager : MonoBehaviour
@@ -18,14 +21,15 @@ public class GameStateManager : MonoBehaviour
 	public GameObject startSign ;
 	public GameObject loadingSign;
 	public UIScreen inGameScreen ;
+	public UIScreen endGameScreen ;
 
 	private IEnumerator loadGame()
 	{
 		if (loadingSign != null) loadingSign.SetActive(true);
 
-		yield return new WaitForSeconds(1.3f);
+		yield return new WaitForSecondsRealtime(1.3f);
 
-		AsyncOperation op = SceneManager.LoadSceneAsync(1, LoadSceneMode.Additive);
+		AsyncOperation op = SceneManager.LoadSceneAsync(1, LoadSceneMode.Single);
 
 		while (!op.isDone)
 		{
@@ -54,4 +58,38 @@ public class GameStateManager : MonoBehaviour
     {
         
     }
+
+	IEnumerator reloGame()
+	{
+		AsyncOperation op = SceneManager.LoadSceneAsync(2, LoadSceneMode.Single);
+
+		while (!op.isDone)
+		{
+			yield return op.isDone;
+		}
+
+		if (startSign != null) startSign.SetActive(true);
+
+		if (loadingSign != null) loadingSign.SetActive(false);
+
+		status = GameState.READY;
+
+		yield return new WaitForEndOfFrame();
+
+		op = SceneManager.LoadSceneAsync(1, LoadSceneMode.Single);
+
+		while (!op.isDone)
+		{
+			yield return op.isDone;
+		}
+
+		if (startSign != null) startSign.SetActive(true);
+
+		if (loadingSign != null) loadingSign.SetActive(false);
+	}
+
+	public void endGame()
+	{
+		endGameScreen.EnableMe();
+	}
 }
